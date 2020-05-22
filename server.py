@@ -6,20 +6,18 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# First update
-lista, dia = dict(get_data()), datetime.strftime(datetime.today(), '%d')
-lista = {outer_k: {inner_k: float(inner_v) for inner_k, inner_v in outer_v.items()} for outer_k, outer_v in lista.items()}
+dia = datetime.strftime(datetime.today(), '%d')
+lista = get_data()
 
 @app.route("/")
 def json_api():
     global lista, dia
     
-    # Then only update once a day
     if dia == datetime.strftime(datetime.today(), '%d'):
         return jsonify(lista)
     else:
-        lista, dia = dict(get_data()), datetime.strftime(datetime.today(), '%d')
-        lista = {outer_k: {inner_k: float(inner_v) for inner_k, inner_v in outer_v.items()} for outer_k, outer_v in lista.items()}
+        dia = datetime.strftime(datetime.today(), '%d')
+        lista = lista = get_data()
         return jsonify(lista)
 
 if __name__ == "__main__":

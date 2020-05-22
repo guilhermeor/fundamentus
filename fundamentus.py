@@ -66,48 +66,46 @@ def get_data(*args, **kwargs):
     pattern = re.compile('<table id="resultado".*</table>', re.DOTALL)
     content = re.findall(pattern, content)[0]
     page = fragment_fromstring(content)
-    result = OrderedDict()
+    result = []
 
     for rows in page.xpath('tbody')[0].findall("tr"):
-        result.update({rows.getchildren()[0][0].getchildren()[0].text: {'Cotacao': todecimal(rows.getchildren()[1].text),
-                                                                        'P/L': todecimal(rows.getchildren()[2].text),
-                                                                        'P/VP': todecimal(rows.getchildren()[3].text),
-                                                                        'PSR': todecimal(rows.getchildren()[4].text),
-                                                                        'DY': todecimal(rows.getchildren()[5].text),
-                                                                        'P/Ativo': todecimal(rows.getchildren()[6].text),
-                                                                        'P/Cap.Giro': todecimal(rows.getchildren()[7].text),
-                                                                        'P/EBIT': todecimal(rows.getchildren()[8].text),
-                                                                        'P/ACL': todecimal(rows.getchildren()[9].text),
-                                                                        'EV/EBIT': todecimal(rows.getchildren()[10].text),
-                                                                        'EV/EBITDA': todecimal(rows.getchildren()[11].text),
-                                                                        'Mrg.Ebit': todecimal(rows.getchildren()[12].text),
-                                                                        'Mrg.Liq.': todecimal(rows.getchildren()[13].text),
-                                                                        'Liq.Corr.': todecimal(rows.getchildren()[14].text),
-                                                                        'ROIC': todecimal(rows.getchildren()[15].text),
-                                                                        'ROE': todecimal(rows.getchildren()[16].text),
-                                                                        'Liq.2meses': todecimal(rows.getchildren()[17].text),
-                                                                        'Pat.Liq': todecimal(rows.getchildren()[18].text),
-                                                                        'Div.Brut/Pat.': todecimal(rows.getchildren()[19].text),
-                                                                        'Cresc.5anos': todecimal(rows.getchildren()[20].text)}})
-    
+      result.append({
+          'papel': rows.getchildren()[0][0].getchildren()[0].text,
+          'cotacao': format_data(rows.getchildren()[1].text),
+          'pL': format_data(rows.getchildren()[2].text),
+          'pVP': format_data(rows.getchildren()[3].text),
+          'pSR': format_data(rows.getchildren()[4].text),
+          'dY': format_data(rows.getchildren()[5].text),
+          'pAtivo': format_data(rows.getchildren()[6].text),
+          'pCapGiro': format_data(rows.getchildren()[7].text),
+          'pEBIT': format_data(rows.getchildren()[8].text),
+          'pACL': format_data(rows.getchildren()[9].text),
+          'eVeBIT': format_data(rows.getchildren()[10].text),
+          'evEBITDA': format_data(rows.getchildren()[11].text),
+          'mrgEBIT': format_data(rows.getchildren()[12].text),
+          'mrgLiq': format_data(rows.getchildren()[13].text),
+          'liqCorr': format_data(rows.getchildren()[14].text),
+          'roic': format_data(rows.getchildren()[15].text),
+          'roe': format_data(rows.getchildren()[16].text),
+          'liq2Meses': format_data(rows.getchildren()[17].text),
+          'patLiq': format_data(rows.getchildren()[18].text),
+          'divBrutPat': format_data(rows.getchildren()[19].text),
+          'cresc5Anos': format_data(rows.getchildren()[20].text)}
+      )
     return result
-    
-def todecimal(string):
-  string = string.replace('.', '')
-  string = string.replace(',', '.')
 
-  if (string.endswith('%')):
-    string = string[:-1]
-    return Decimal(string) / 100
+def format_data(value):
+  value = value.replace('.', '')
+  value = value.replace(',', '.')
+
+  if (value.endswith('%')):
+    value = value[:-1]
+    return float(Decimal(value) / 100)
   else:
-    return Decimal(string)
+    return float(Decimal(value))
 
 if __name__ == '__main__':
-    from waitingbar import WaitingBar
-    
-    progress_bar = WaitingBar('[*] Downloading...')
     result = get_data()
-    progress_bar.stop()
 
     result_format = '{0:<7} {1:<7} {2:<10} {3:<7} {4:<10} {5:<7} {6:<10} {7:<10} {8:<10} {9:<11} {10:<11} {11:<7} {12:<11} {13:<11} {14:<7} {15:<11} {16:<5} {17:<7}'
     print(result_format.format('Papel',
